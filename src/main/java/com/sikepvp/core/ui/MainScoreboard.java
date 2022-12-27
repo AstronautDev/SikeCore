@@ -1,7 +1,9 @@
 package com.sikepvp.core.ui;
 
 import com.sikepvp.core.Core;
+import com.sikepvp.core.listener.LocationCheck;
 import com.sikepvp.mafia.utility.Cash;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -21,7 +23,11 @@ public class MainScoreboard {
     public MainScoreboard(Core core, boolean update) {
         this.core = core;
 
-        setTitle("SikePvP");
+        Date inputDate = new Date();
+        LocalDate date = inputDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        String day = date.getDayOfWeek().toString();
+
+        setTitle(ChatColor.GOLD + "" + ChatColor.BOLD + day);
         if(update) {
             updateScoreboards();
         } else {
@@ -34,17 +40,19 @@ public class MainScoreboard {
         Scoreboard board = manager.getNewScoreboard();
         Objective obj = board.registerNewObjective("uiBoard", "dummy", title);
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-        Date inputDate = new Date();
-        LocalDate date = inputDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        String day = date.getDayOfWeek().toString();
 
-        Score dateScore = obj.getScore(ChatColor.GOLD + "" + ChatColor.BOLD + day);
-        dateScore.setScore(15);
-        Score playerScore = obj.getScore(ChatColor.DARK_AQUA + p.getName());
+        Score nameScore = obj.getScore(ChatColor.BOLD + "Name");
+        nameScore.setScore(15);
+        Score playerScore = obj.getScore(p.getDisplayName());
         playerScore.setScore(14);
         Score buffer1 = obj.getScore("");
         buffer1.setScore(13);
-        Score locScore = obj.getScore(ChatColor.GREEN + pinSym + " CURRENT LOC");
+        Score locScore;
+        if(LocationCheck.isInRegion(p)) {
+            locScore = obj.getScore(ChatColor.GREEN + pinSym + " " + LocationCheck.getRegion(p).toUpperCase());
+        } else {
+            locScore = obj.getScore(ChatColor.GREEN + pinSym + " THE WILD");
+        }
         locScore.setScore(12);
         Score buffer2 = obj.getScore(" ");
         buffer2.setScore(11);
@@ -58,7 +66,7 @@ public class MainScoreboard {
         moneyHeadScore.setScore(7);
         Score moneyScore;
         if(Cash.hasCash(p.getUniqueId())) {
-            moneyScore = obj.getScore(ChatColor.RED + "$" + Cash.getCash(p.getUniqueId()));
+            moneyScore = obj.getScore(ChatColor.RED + "$" + Cash.displayBalance(Cash.getCash(p.getUniqueId())));
         } else {
             moneyScore = obj.getScore(ChatColor.RED + "NO ACCOUNT");
         }

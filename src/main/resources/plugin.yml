@@ -2,3 +2,7 @@ name: SikeCore
 main: com.sikepvp.core.Core
 version: 1.0.0
 description: Core plugin for SikePVP
+
+commands:
+  region:
+    description: Adds region at player location.

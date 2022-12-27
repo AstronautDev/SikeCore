@@ -1,0 +1,4 @@
+name: SikeCore
+main: com.sikepvp.core.Core
+version: 1.0.0
+description: Core plugin for SikePVP
